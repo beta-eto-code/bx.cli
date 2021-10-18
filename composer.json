@@ -1,0 +1,12 @@
+{
+    "name": "beta/bx.cli",
+    "description": "Command line interface for bitrix",
+    "type": "bitrix-module",
+    "license": "MIT",
+    "require": {
+        "php": ">=7.2",
+        "ext-json": "*",
+        "symfony/console": "^5.2",
+        "nette/php-generator": "^3.5"
+    }
+}

@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+define('NO_AGENT_CHECK', true);
+define('DisableEventsCheck', true);
+define('NO_KEEP_STATISTIC', true);
+define('NO_AGENT_STATISTIC', true);
+define('NOT_CHECK_PERMISSIONS', true);
+define('STOP_STATISTICS', true);
+
+use Bitrix\Main\Cli\OrmAnnotateCommand;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Translate\Cli\IndexCommand;
+use Bx\Cli\BitrixCliApplication;
+
+if (file_exists(__DIR__ . '/vendor/autoload.php')) {
+    require_once __DIR__ . '/vendor/autoload.php';
+} elseif (file_exists(__DIR__ . '/local/vendor/autoload.php')) {
+    require_once __DIR__ . '/local/vendor/autoload.php';
+} elseif (file_exists(__DIR__ . '/local/modules/bx.cli/vendor/autoload.php')) {
+    require_once __DIR__ . '/local/modules/bx.cli/vendor/autoload.php';
+}
+
+$_SERVER["DOCUMENT_ROOT"] = __DIR__;
+require $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php";
+
+Loader::includeModule('bx.cli');
+/**
+ * @var BitrixCliApplication $cliApp
+ */
+$cliApp = BitrixCliApplication::instance();
+$cliApp->addCommand(new OrmAnnotateCommand());
+
+if (ModuleManager::isModuleInstalled('translate') && Loader::includeModule('translate')) {
+    $cliApp->addCommand(new IndexCommand());
+}
+
+$cliApp->run();
