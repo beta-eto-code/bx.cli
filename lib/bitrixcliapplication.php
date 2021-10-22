@@ -2,6 +2,7 @@
 
 namespace Bx\Cli;
 
+use Bitrix\Main\ModuleManager;
 use Bx\Cli\Interfaces\BitrixCliAppInterface;
 use Exception;
 use Symfony\Component\Console\Application;
@@ -48,15 +49,39 @@ class BitrixCliApplication implements BitrixCliAppInterface
         return static::$instance = new static();
     }
 
+    /**
+     * @param string $path
+     * @return string
+     */
+    private function getModuleNameByPath(string $path): string
+    {
+        $path = str_replace(
+            [
+                $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/',
+                $_SERVER['DOCUMENT_ROOT'].'/local/modules/',
+            ],
+            '',
+            $path
+        );
+
+        return current(explode('/', $path));
+    }
+
     private function initModuleCommands()
     {
         $cliApp = $this;
         foreach (glob($_SERVER['DOCUMENT_ROOT'].'/local/modules/*/initcli.php') as $path) {
-            require_once $path;
+            $moduleName = $this->getModuleNameByPath($path);
+            if (ModuleManager::isModuleInstalled($moduleName)) {
+                require_once $path;
+            }
         }
 
         foreach (glob($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/*/initcli.php') as $path) {
-            require_once $path;
+            $moduleName = $this->getModuleNameByPath($path);
+            if (ModuleManager::isModuleInstalled($moduleName)) {
+                require_once $path;
+            }
         }
     }
 
